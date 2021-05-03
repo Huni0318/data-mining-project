@@ -25,10 +25,19 @@ data = subset( data, select = -c(p1003_5,p1003_6,p1003_7,p1003_8,p1003_9,p1003_1
 dim(data)
 data$y
 data = as.data.frame(data)
-data$y = ifelse(data$y == 2 ,rep(1,795))
 dim(data)
 str(data$y)
 data$y[data$y == 2] = 1
 data$y[data$y == 5] = 4
 data$y[data$y == 4] = 2
+dim(data)
 
+colSums(is.na(data))/7923 < 0.5
+
+data
+x = data[colSums(is.na(data))/7923 < 0.5] # na가 0.5 이상인 열은 제거
+
+dim(x)
+
+str(x)
+colSums(is.na(x)) 
