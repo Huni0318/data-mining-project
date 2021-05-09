@@ -6,7 +6,7 @@ library(dplyr)
 library(caret)
 library(RANN)
 library(earth)
-
+dim(data)
 data = data[data$h10_g4 < 1990, ] # 90년대 이전 출생자 뽑기
 dim(data)
 data = data %>% filter(p1003_12 %in% c(1,2,4,5)) # p1003_12에서 1,2,4,5만 뽑기
@@ -16,7 +16,7 @@ data$p1003_12
 data$y = data$p1003_12 # y로 변환
 data = subset( data, select = -c(p1003_12))
 dim(data)
-
+data$y
 # 전반적 만족도에 p1003_5~p1003_11 이 정보를 어느정도 포함하고 있으므로 삭제한다.
 
 data = subset( data, select = -c(p1003_5,p1003_6,p1003_7,p1003_8,p1003_9,p1003_10,p1003_11))
@@ -56,7 +56,7 @@ str(x)
 sort(colSums(is.na(x)),decreasing = T) # 결측치 값들을 크기 순으로 정렬
 sort(colSums(is.na(x)),decreasing = T)[1:10]
 
-?preProcess
+x$y = as.factor(x$y)
 imp.x = preProcess(x, method = c("bagImpute")) # 결측값을 bagImputer로 채움
 dim(imp.x)
 sum(is.na(x))
@@ -67,29 +67,10 @@ dim(imp.2)
 sum(is.na(imp.2))
 
 set.seed(1996) 
+
 intrain<-createDataPartition(y=imp.2$y, p=0.7, list=FALSE) 
 train<-imp.2[intrain, ]
 test<-imp.2[-intrain, ]
-
-### decision tree를 이용한 분석
-library(e1071)
-library(tree)
-library(rpart)
-train$y = as.factor(train$y)
-rpartmod<-rpart(y~. , data=train, method="class")
-plot(rpartmod)
-text(rpartmod)
-
-printcp(rpartmod)
-plotcp(rpartmod)
-ptree<-prune(rpartmod, cp= rpartmod$cptable[which.min(rpartmod$cptable[,"xerror"]),"CP"])
-plot(ptree)
-text(ptree)
-rpartpred<-predict(ptree, test, type='class')
-str(test$y)
-test$y = as.factor(test$y)
-dim(test)
-confusionMatrix(rpartpred, test$y)
 
 
 #### random forest
@@ -225,6 +206,30 @@ lines(1:length(ntree_train), ntree_train, type = 'l')
 plot(1:length(mtry_test)-1, mtry_test, type = 'b', xlab = 'mtry', col='red', ylim = c(95,100))
 
 lines(1:length(mtry_train)-1, mtry_train, type = 'b')
+
+
+
+### decision tree를 이용한 분석
+library(e1071)
+library(tree)
+library(rpart)
+train$y = as.factor(train$y)
+rpartmod<-rpart(y~. , data=train, method="class")
+plot(rpartmod)
+text(rpartmod)
+
+printcp(rpartmod)
+plotcp(rpartmod)
+ptree<-prune(rpartmod, cp= rpartmod$cptable[which.min(rpartmod$cptable[,"xerror"]),"CP"])
+plot(ptree)
+text(ptree)
+rpartpred<-predict(ptree, test, type='class')
+str(test$y)
+test$y = as.factor(test$y)
+dim(test)
+confusionMatrix(rpartpred, test$y)
+
+
 
 
 
