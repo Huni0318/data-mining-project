@@ -179,6 +179,8 @@ for (i in 1:(length(train)-1)) {
 
 mtry_test
 
+forest_m1 = randomForest(y~., data = train, mtry=20, ntree = 300)
+prd_v <- predict(forest_m1, newdata = test, type = 'class')
 
 
 
@@ -208,6 +210,11 @@ plot(1:length(mtry_test)-1, mtry_test, type = 'b', xlab = 'mtry', col='red', yli
 lines(1:length(mtry_train)-1, mtry_train, type = 'b')
 
 
+forest_m1 = randomForest(y~., data = train, mtry=20, ntree = 300)
+prd_v <- predict(forest_m1, newdata = test, type = 'class')
+
+
+library(prediction)
 
 ### decision tree를 이용한 분석
 library(e1071)
@@ -234,4 +241,16 @@ confusionMatrix(rpartpred, test$y)
 
 
 
+TN = 311
+FN = 34
+FP = 270
+TP = 4932
+Specificity= TP / (FP+TP)
+Specificity
 
+Sensitivity = FP/(FN+TP)
+Sensitivity
+
+ACCURACY = (TP + TN)/(TN + FN + TP + FP)
+
+ACCURACY
